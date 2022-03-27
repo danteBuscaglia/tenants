@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import Alert from '../../common/components/alert/Alert';
 import Loader from '../../common/components/loader/Loader';
 import { Service } from '../../Service';
+import { sortByDate, sortByString } from '../../utils/sorted-by';
+import '../tenants.css';
 import TenantItem from './TenantItem';
-import '../tenants.css'
 
 const TenantsView = ({
   tenants,
@@ -13,6 +14,7 @@ const TenantsView = ({
 }) => {
 
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [tenantWasDeleted, setTenantWasDeleted] = useState(false);
 
   const deleteTenant = async (id) => {
@@ -21,12 +23,33 @@ const TenantsView = ({
       await Service.deleteTenant(id);
       const tenants = await Service.getTenants();
       setTenants({ all: tenants, filtered: tenants });
+      setHasError(false);
       setTenantWasDeleted(true);
     } catch (error) {
       console.log(error);
+      setHasError(true);
     } finally {
       setIsLoading(false);
     }
+  }
+
+  /**
+   * Ascending sorting
+   */
+
+  const sortByName = () => {
+    const tenantsSortedByName = sortByString('name', tenants.filtered);
+    setTenants({ ...tenants, filtered: tenantsSortedByName });
+  }
+
+  const sortByPayment = () => {
+    const tenantsSortedByPayment = sortByString('paymentStatus', tenants.filtered);
+    setTenants({ ...tenants, filtered: tenantsSortedByPayment });
+  }
+
+  const sortByLease = () => {
+    const tenantsSortedByDate = sortByDate('leaseEndDate', tenants.filtered);
+    setTenants({ ...tenants, filtered: tenantsSortedByDate });
   }
 
   return (
@@ -38,9 +61,9 @@ const TenantsView = ({
         <thead>
           <tr>
             <th>#</th>
-            <th>Name</th>
-            <th>Payment Status</th>
-            <th>Lease End Date</th>
+            <th onClick={() => sortByName()}>Name</th>
+            <th onClick={() => sortByPayment()}>Payment Status</th>
+            <th onClick={() => sortByLease()}>Lease End Date</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -50,6 +73,8 @@ const TenantsView = ({
           )}
         </tbody>
       </table>
+
+      {hasError && <Alert msg='Error deleting tenants. Please, try again later.' type='danger' setIsShown={setHasError} />}
 
       {tenantWasDeleted && <Alert msg='Tenant deleted' type='danger' setIsShown={setTenantWasDeleted} />}
 
