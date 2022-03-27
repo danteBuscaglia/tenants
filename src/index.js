@@ -1,11 +1,11 @@
+import 'bootstrap/dist/css/bootstrap.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
-import 'bootstrap/dist/css/bootstrap.css';
+import TenantsPage from './app/TenantsPage';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <TenantsPage />
   </React.StrictMode>,
   document.getElementById('root')
 );
